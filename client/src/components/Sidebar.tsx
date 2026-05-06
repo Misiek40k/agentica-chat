@@ -52,7 +52,7 @@ export function Sidebar({ sessions, activeSessionId, onSelect, onNew }: SidebarP
       <List sx={{ flex: 1, overflow: 'auto', py: 0 }}>
         {sessions.length === 0 ? (
           <Box sx={{ px: 2, py: 3 }}>
-            <Typography variant="body2" color="text.secondary" textAlign="center">
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
               No conversations yet
             </Typography>
           </Box>
@@ -66,8 +66,7 @@ export function Sidebar({ sessions, activeSessionId, onSelect, onNew }: SidebarP
               <ListItemText
                 primary={session.title}
                 secondary={formatRelative(session.createdAt)}
-                primaryTypographyProps={{ noWrap: true, variant: 'body2' }}
-                secondaryTypographyProps={{ variant: 'caption' }}
+                slotProps={{ primary: { noWrap: true, variant: 'body2' }, secondary: { variant: 'caption' } }}
               />
             </ListItemButton>
           ))

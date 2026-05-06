@@ -88,6 +88,10 @@ function ChatLayout() {
     setMobileOpen(false)
   }
 
+  function handleDelete(id: string) {
+    dispatch({ type: 'DELETE_SESSION', payload: { id } })
+  }
+
   function handleRetry(failedAssistantId: string) {
     const messages = activeSession?.messages ?? []
     const idx = messages.findIndex((m) => m.id === failedAssistantId)
@@ -112,6 +116,7 @@ function ChatLayout() {
           activeSessionId={activeSessionId}
           onSelect={handleSelect}
           onNew={handleNew}
+          onDelete={handleDelete}
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
           sidebarBg={sidebarBg}

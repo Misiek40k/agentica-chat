@@ -96,6 +96,20 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
         activeSessionId: action.payload.id,
       }
 
+    case 'DELETE_SESSION': {
+      const remaining = state.sessions.filter((s) => s.id !== action.payload.id)
+      if (remaining.length === 0) {
+        const fresh = makeSession()
+        return { sessions: [fresh], activeSessionId: fresh.id }
+      }
+      if (state.activeSessionId !== action.payload.id) {
+        return { ...state, sessions: remaining }
+      }
+      const idx = state.sessions.findIndex((s) => s.id === action.payload.id)
+      const next = remaining[idx] ?? remaining[idx - 1]
+      return { sessions: remaining, activeSessionId: next.id }
+    }
+
     default:
       return state
   }

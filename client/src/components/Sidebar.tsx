@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
@@ -5,8 +6,16 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Tooltip from '@mui/material/Tooltip'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { alpha } from '@mui/material/styles'
 import type { Session } from '../schemas/api.js'
 
@@ -15,6 +24,7 @@ interface SidebarProps {
   activeSessionId: string
   onSelect: (id: string) => void
   onNew: () => void
+  onDelete: (id: string) => void
   mobileOpen: boolean
   onMobileClose: () => void
   sidebarBg: string
@@ -35,21 +45,28 @@ export function Sidebar({
   activeSessionId,
   onSelect,
   onNew,
+  onDelete,
   mobileOpen,
   onMobileClose,
   sidebarBg,
   accent,
   drawerWidth,
 }: SidebarProps) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+
+  function handleDeleteClick(e: React.MouseEvent, id: string) {
+    e.stopPropagation()
+    setPendingDeleteId(id)
+  }
+
+  function handleConfirmDelete() {
+    if (pendingDeleteId) onDelete(pendingDeleteId)
+    setPendingDeleteId(null)
+  }
+
   const content = (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        bgcolor: sidebarBg,
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: sidebarBg }}>
       {/* New chat button */}
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Button
@@ -91,17 +108,23 @@ export function Sidebar({
         ) : (
           sessions.map((session) => {
             const isActive = session.id === activeSessionId
+            const isHovered = hoveredId === session.id
             return (
               <ListItemButton
                 key={session.id}
                 onClick={() => onSelect(session.id)}
+                onMouseEnter={() => setHoveredId(session.id)}
+                onMouseLeave={() => setHoveredId(null)}
                 sx={{
+                  position: 'relative',
                   borderRadius: '6px',
                   py: '4px',
                   px: 1,
+                  pr: isHovered ? '36px' : 1,
                   mb: 0.25,
                   bgcolor: isActive ? alpha(accent, 0.12) : 'transparent',
                   borderLeft: isActive ? `2px solid ${accent}` : '2px solid transparent',
+                  transition: 'padding-right 0.15s',
                   '&:hover': {
                     bgcolor: isActive ? alpha(accent, 0.15) : alpha(accent, 0.06),
                   },
@@ -129,17 +152,67 @@ export function Sidebar({
                     },
                   }}
                 />
+
+                {isHovered && (
+                  <Tooltip title="Delete chat" placement="right">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleDeleteClick(e, session.id)}
+                      aria-label="Delete chat"
+                      sx={{
+                        position: 'absolute',
+                        right: 4,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: 'text.secondary',
+                        '&:hover': { color: 'error.main' },
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </ListItemButton>
             )
           })
         )}
       </List>
+
+      {/* Confirmation dialog */}
+      <Dialog
+        open={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        slotProps={{ paper: { sx: { borderRadius: '12px', minWidth: 320 } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: '1rem' }}>Delete chat?</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontSize: '0.875rem' }}>
+            This will permanently remove this conversation. This cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setPendingDeleteId(null)}
+            sx={{ borderRadius: '8px', textTransform: 'none' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirmDelete}
+            sx={{ borderRadius: '8px', textTransform: 'none' }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 
   return (
     <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
-      {/* Mobile drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -158,7 +231,6 @@ export function Sidebar({
         {content}
       </Drawer>
 
-      {/* Desktop drawer */}
       <Drawer
         variant="permanent"
         sx={{

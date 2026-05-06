@@ -9,6 +9,7 @@ export type ChatAction =
   | { type: 'NEW_SESSION'; payload: Session }
   | { type: 'UPDATE_SESSION_TITLE'; payload: { id: string; title: string } }
   | { type: 'REMOVE_MESSAGE'; payload: { id: string } }
+  | { type: 'DELETE_SESSION'; payload: { id: string } }
 
 type ChatContextValue = {
   sessions: Session[]

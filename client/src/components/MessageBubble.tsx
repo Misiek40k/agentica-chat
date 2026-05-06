@@ -1,6 +1,8 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Message } from '../schemas/api.js'
@@ -57,7 +59,12 @@ const markdownComponents = {
   ),
 }
 
-export function MessageBubble({ message }: { message: Message }) {
+interface MessageBubbleProps {
+  message: Message
+  onRetry?: (id: string) => void
+}
+
+export function MessageBubble({ message, onRetry }: MessageBubbleProps) {
   const isUser = message.role === 'user'
 
   return (
@@ -86,6 +93,16 @@ export function MessageBubble({ message }: { message: Message }) {
             <Typography variant="body2" sx={{ color: 'error.main' }}>
               Failed to generate a response
             </Typography>
+            {onRetry && (
+              <IconButton
+                size="small"
+                onClick={() => onRetry(message.id)}
+                aria-label="Retry"
+                sx={{ ml: 0.5 }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            )}
           </Box>
         ) : isUser ? (
           <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>

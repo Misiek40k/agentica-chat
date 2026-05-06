@@ -4,7 +4,12 @@ import { MessageBubble } from './MessageBubble.js'
 import { useAutoScroll } from '../hooks/useAutoScroll.js'
 import type { Message } from '../schemas/api.js'
 
-export function MessageList({ messages }: { messages: Message[] }) {
+interface MessageListProps {
+  messages: Message[]
+  onRetry?: (id: string) => void
+}
+
+export function MessageList({ messages, onRetry }: MessageListProps) {
   const { scrollRef } = useAutoScroll(messages.length)
 
   return (
@@ -19,7 +24,7 @@ export function MessageList({ messages }: { messages: Message[] }) {
       ) : (
         <Box sx={{ py: 2 }}>
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble key={message.id} message={message} onRetry={onRetry} />
           ))}
         </Box>
       )}

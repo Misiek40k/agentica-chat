@@ -7,6 +7,8 @@ export type ChatAction =
   | { type: 'APPEND_CHUNK'; payload: { id: string; content: string } }
   | { type: 'SELECT_SESSION'; payload: string }
   | { type: 'NEW_SESSION'; payload: Session }
+  | { type: 'UPDATE_SESSION_TITLE'; payload: { id: string; title: string } }
+  | { type: 'REMOVE_MESSAGE'; payload: { id: string } }
 
 type ChatContextValue = {
   sessions: Session[]

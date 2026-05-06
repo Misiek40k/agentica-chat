@@ -9,7 +9,7 @@ import { Sidebar } from './components/Sidebar.js'
 import { MessageList } from './components/MessageList.js'
 import { ChatInput } from './components/ChatInput.js'
 import { useChatContext } from './context/ChatContext.js'
-import { makeSession } from './context/ChatProvider.js'
+import { makeSession } from './utils/session.js'
 import { useActiveSession } from './hooks/useActiveSession.js'
 import { useChat } from './hooks/useChat.js'
 
@@ -41,6 +41,17 @@ function ChatLayout() {
     dispatch({ type: 'SELECT_SESSION', payload: id })
   }
 
+  function handleRetry(failedAssistantId: string) {
+    const messages = activeSession?.messages ?? []
+    const idx = messages.findIndex((m) => m.id === failedAssistantId)
+    if (idx <= 0) return
+    const preceding = messages[idx - 1]
+    if (preceding?.role !== 'user') return
+    dispatch({ type: 'REMOVE_MESSAGE', payload: { id: failedAssistantId } })
+    dispatch({ type: 'REMOVE_MESSAGE', payload: { id: preceding.id } })
+    sendMessage(preceding.content)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -68,7 +79,7 @@ function ChatLayout() {
             </IconButton>
           </Box>
           <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <MessageList messages={activeSession?.messages ?? []} />
+            <MessageList messages={activeSession?.messages ?? []} onRetry={handleRetry} />
           </Box>
           <ChatInput onSend={sendMessage} onStop={cancelStream} isStreaming={isStreaming} />
         </Box>

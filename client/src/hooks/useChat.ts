@@ -3,9 +3,15 @@ import { nanoid } from 'nanoid'
 import { SSEChunk, type Message } from '../schemas/api.js'
 import { useChatContext } from '../context/ChatContext.js'
 
+function deriveTitle(text: string): string {
+  const words = text.trim().split(/\s+/)
+  return words.length <= 8 ? text.trim() : words.slice(0, 8).join(' ') + '…'
+}
+
 export function useChat() {
   const { dispatch, activeSession } = useChatContext()
   const abortControllerRef = useRef<AbortController | null>(null)
+  const streamIdRef = useRef<string | null>(null)
   const [isStreaming, setIsStreaming] = useState(false)
 
   async function sendMessage(content: string) {
@@ -18,6 +24,12 @@ export function useChat() {
     const controller = new AbortController()
     abortControllerRef.current = controller
 
+    const thisStreamId = nanoid()
+    streamIdRef.current = thisStreamId
+
+    const sessionId = activeSession?.id
+    const isFirstAssistant = !(activeSession?.messages ?? []).some((m) => m.role === 'assistant')
+
     const userMessage: Message = {
       id: nanoid(),
       role: 'user',
@@ -27,13 +39,10 @@ export function useChat() {
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage })
 
     const assistantId = nanoid()
-    const assistantMessage: Message = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-      status: 'streaming',
-    }
-    dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage })
+    dispatch({
+      type: 'ADD_MESSAGE',
+      payload: { id: assistantId, role: 'assistant', content: '', status: 'streaming' },
+    })
 
     setIsStreaming(true)
 
@@ -87,6 +96,13 @@ export function useChat() {
       }
 
       dispatch({ type: 'SET_MESSAGE_STATUS', payload: { id: assistantId, status: 'done' } })
+
+      if (isFirstAssistant && sessionId) {
+        dispatch({
+          type: 'UPDATE_SESSION_TITLE',
+          payload: { id: sessionId, title: deriveTitle(userMessage.content) },
+        })
+      }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
         dispatch({ type: 'SET_MESSAGE_STATUS', payload: { id: assistantId, status: 'done' } })
@@ -94,7 +110,9 @@ export function useChat() {
         dispatch({ type: 'SET_MESSAGE_STATUS', payload: { id: assistantId, status: 'error' } })
       }
     } finally {
-      setIsStreaming(false)
+      if (streamIdRef.current === thisStreamId) {
+        setIsStreaming(false)
+      }
     }
   }
 

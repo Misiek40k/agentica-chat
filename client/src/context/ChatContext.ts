@@ -5,8 +5,12 @@ export type ChatAction =
   | { type: 'ADD_MESSAGE'; payload: Message }
   | { type: 'SET_MESSAGE_STATUS'; payload: { id: string; status: Message['status'] } }
   | { type: 'APPEND_CHUNK'; payload: { id: string; content: string } }
+  | { type: 'SELECT_SESSION'; payload: string }
+  | { type: 'NEW_SESSION'; payload: Session }
 
 type ChatContextValue = {
+  sessions: Session[]
+  activeSessionId: string
   activeSession: Session | null
   dispatch: Dispatch<ChatAction>
 }

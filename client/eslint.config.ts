@@ -18,5 +18,14 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/llm-test-api\\.projects\\.agentica\\.studio/]',
+          message: 'Do not hardcode the LLM API base URL in client code. Use environment variables instead.',
+        },
+      ],
+    },
   },
 ])

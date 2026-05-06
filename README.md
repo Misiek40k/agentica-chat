@@ -29,12 +29,12 @@ npm start                     # builds both packages, then serves from :3001
 ## Discussion Questions
 
 ### 1. AI Dev Stack
-Claude.ai (Sonnet) for upfront architecture planning — state management approach, schema boundaries, and implementation order. Claude Code (Sonnet, terminal) for execution, running `tsc --noEmit` between each prompt to catch type errors early. No code was written manually.
+Claude.ai (Sonnet) for upfront architecture planning — state management approach, schema boundaries, and implementation order. Claude Code (Sonnet, terminal) for execution, running `tsc --noEmit` between each prompt to catch type errors early. No code was written manually. Each chunk of code was "code reviewed" before pushing to git.
 
 ---
 
 ### 2. API discovery
-The brief provided the base URL. I hit `GET /v1/models` with the provided API key to list available model IDs, picked the first one, and confirmed it responded correctly with a quick non-streaming test request before wiring it into the app.
+The brief provided the base URL. With the help of claude code I hit `GET /v1/models` with the provided API key to list available model IDs, picked the first one, and confirmed it responded correctly with a quick non-streaming test request before wiring it into the app.
 
 ---
 
@@ -59,4 +59,4 @@ Skipped: automated tests, LLM-generated session titles, skeleton loaders. With a
 ---
 
 ### 7. Time spent
-~3 hours total. SSE parsing took longer than expected — correctly handling chunks where a single `read()` delivers multiple `data:` lines, and cleanly skipping `[DONE]` before Zod sees it, needed more iteration than the happy path suggested.
+~3 hours total (18:00 ~ 21:00). SSE parsing took longer than expected — correctly handling chunks where a single `read()` delivers multiple `data:` lines, and cleanly skipping `[DONE]` before Zod sees it, needed more iteration than the happy path suggested.

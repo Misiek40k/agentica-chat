@@ -34,7 +34,7 @@ npm start                     # builds both packages, then serves from http://lo
 ## Discussion Questions
 
 ### 1. AI Dev Stack
-Claude.ai (Sonnet) for upfront architecture planning — state management approach, schema boundaries, and implementation order. Claude Code (Sonnet, terminal) for execution, running `tsc --noEmit` between each prompt to catch type errors early. No code was written manually. Each chunk of code was "code reviewed" before pushing to git.
+I used Claude.ai (Sonnet) for upfront architecture planning: state management approach, schema boundaries, and implementation order. Claude Code (Sonnet, terminal) handled execution, with `tsc --noEmit` running between each prompt to catch type errors early. No code was written manually, and each chunk was reviewed before pushing to git.
 
 ---
 
@@ -44,24 +44,24 @@ The brief provided the base URL. With the help of claude code I hit `GET /v1/mod
 ---
 
 ### 3. Architecture
-API calls go through the Express backend, not the browser directly. Calling from the frontend would expose the API key in devtools and the JS bundle. In production I'd move the key to a secrets manager, add auth middleware, per-user rate limiting, and consider an edge runtime for lower latency.
+API calls go through the Express backend rather than the browser directly. Calling from the frontend would expose the API key in devtools and the JS bundle. In production I'd move the key to a secrets manager, add auth middleware, per-user rate limiting, and consider an edge runtime for lower latency.
 
 ---
 
 ### 4. Streaming implementation
-Native `fetch` + `ReadableStream` — no library. The server pipes the LLM's SSE response straight to the client. On the client, a `TextDecoder` loop splits chunks on `\n`, skips `[DONE]`, and validates each `data:` line with Zod `safeParse`. The main alternative would be `eventsource-parser` for more robust SSE framing, or `@microsoft/fetch-event-source` for built-in reconnection.
+Native `fetch` + `ReadableStream`, no library. The server pipes the LLM's SSE response straight to the client. On the client, a `TextDecoder` loop splits chunks on `\n`, skips `[DONE]`, and validates each `data:` line with Zod `safeParse`. The main alternative would be `eventsource-parser` for more robust SSE framing, or `@microsoft/fetch-event-source` for built-in reconnection.
 
 ---
 
 ### 5. State management
-`useReducer` + React Context. All sessions and messages live in a single reducer; streaming state is modelled as a `status` field on each message (`streaming | done | error`). `AbortController` is a ref, not state, so aborting never triggers a re-render. Zustand wasn't needed — there's no cross-tree state sharing.
+`useReducer` + React Context. All sessions and messages live in a single reducer; streaming state is modelled as a `status` field on each message (`streaming | done | error`). `AbortController` is a ref rather than state, so aborting never triggers a re-render. Zustand wasn't needed since there's no cross-tree state sharing.
 
 ---
 
 ### 6. Tradeoffs
-Skipped: automated tests, LLM-generated session titles, skeleton loaders. With another 3 hours I'd add unit tests for the reducer and SSE parser first, then `eventsource-parser` for production robustness.
+Skipped automated tests, LLM-generated session titles, and skeleton loaders. With another 3 hours I'd add unit tests for the reducer and SSE parser first, then `eventsource-parser` for production robustness.
 
 ---
 
 ### 7. Time spent
-~3 hours total (18:00 ~ 21:00). SSE parsing took longer than expected — correctly handling chunks where a single `read()` delivers multiple `data:` lines, and cleanly skipping `[DONE]` before Zod sees it, needed more iteration than the happy path suggested. General polishing — layout details, edge-case UX, and visual consistency — also consumed a meaningful share of that time.
+About 3 hours total (18:00 to 21:00). SSE parsing took longer than expected: correctly handling chunks where a single `read()` delivers multiple `data:` lines, and cleanly skipping `[DONE]` before Zod sees it, needed more iteration than the happy path suggested. General polishing (layout details, edge-case UX, visual consistency) also took a meaningful chunk of that time.

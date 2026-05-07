@@ -2,6 +2,11 @@
 
 A full-stack streaming chat application built with React, TypeScript, Express, and Server-Sent Events.
 
+## Requirements
+
+- Node.js v24.14.0
+- npm 11.13.0
+
 ## Setup
 
 ```bash
@@ -59,4 +64,4 @@ Skipped: automated tests, LLM-generated session titles, skeleton loaders. With a
 ---
 
 ### 7. Time spent
-~3 hours total (18:00 ~ 21:00). SSE parsing took longer than expected — correctly handling chunks where a single `read()` delivers multiple `data:` lines, and cleanly skipping `[DONE]` before Zod sees it, needed more iteration than the happy path suggested.
+~3 hours total (18:00 ~ 21:00). SSE parsing took longer than expected — correctly handling chunks where a single `read()` delivers multiple `data:` lines, and cleanly skipping `[DONE]` before Zod sees it, needed more iteration than the happy path suggested. General polishing — layout details, edge-case UX, and visual consistency — also consumed a meaningful share of that time.

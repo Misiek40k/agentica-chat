@@ -12,13 +12,13 @@ A full-stack streaming chat application built with React, TypeScript, Express, a
 ```bash
 cp .env.example .env          # fill in LLM_API_KEY and LLM_BASE_URL
 npm install
-npm run dev                   # client :5173, server :3001 (hot-reload)
+npm run dev                   # client http://localhost:5173, server http://localhost:3001 (hot-reload)
 ```
 
 ## Production
 
 ```bash
-npm start                     # builds both packages, then serves from :3001
+npm start                     # builds both packages, then serves from http://localhost:3001
 ```
 
 ## Environment variables
